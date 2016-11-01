@@ -3,11 +3,19 @@ package com.example.ansan.sdcard;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,14 +25,68 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
     public void onClick(View v){
+        if(isStoragePermissionGranted() == false){
+            Toast.makeText(getApplicationContext(),
+                    "SD Card 사용 불가",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String filename = path + "/myPics" + "/test.txt";
         switch (v.getId()){
+
             case R.id.button:   //폴더 생성
+                File file = new File(path + "/myPics");
+                file.mkdir();
+                Toast.makeText(getApplicationContext(),
+                        "myPics 폴더 생성",
+                        Toast.LENGTH_SHORT).show();
                 break;
+
             case R.id.button2:   //폴더 삭제
+                File file2 = new File(path + "/myPics");
+                file2.delete();
+                Toast.makeText(getApplicationContext(),
+                        "myPics 폴더 삭제",
+                        Toast.LENGTH_SHORT).show();
                 break;
+
             case R.id.button3:   //파일 생성
+                String content = "안녕하세요";
+                try {
+                    FileOutputStream fos = new FileOutputStream(filename);
+                    fos.write(content.getBytes());
+                    fos.close();
+                    Toast.makeText(getApplicationContext(),
+                            "파일 생성",
+                            Toast.LENGTH_SHORT).show();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),
+                            "파일 생성 에러",
+                            Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
-            case R.id.button4:   //파일 삭제
+
+            case R.id.button4:   //파일 읽기
+                try {
+                    FileInputStream fis = new FileInputStream(filename);
+                    byte arr[] = new byte[fis.available()];
+                    fis.close();
+                    Toast.makeText(getApplicationContext(),
+                            new String(arr),
+                            Toast.LENGTH_SHORT).show();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),
+                            "파일 읽기 에러",
+                            Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }
